@@ -30,7 +30,6 @@ class Server:
 					m = f"{client.name}({client.address}): {msg}"
 					if msg in "quit":
 						if client.name == "HOST":
-							m = f"{client.name}({client.address}): LEFT"
 							self.Log(m)
 							self.broadcast(m)
 							self.closeServer()
@@ -45,7 +44,7 @@ class Server:
 						self.Log(m)
 						self.broadcast(m)
 			except:
-				continue 
+				continue
 
 	def closeServer(self):
 		self.isServerRunning = False
@@ -88,8 +87,19 @@ class Server:
 		threading.Thread(target=self.joinServer,args=()).start()
 		self.accept()
 
+	def sentPersonalMsg(self, msg, id):
+		for c in self.clients: 
+			if c.port == id:
+				try:
+					c.connection.send(msg.encode());
+				except:
+					self.clients.remove(c)
+					c.connection.close()
+
+
 server = Server("localhost", 5020)
 server.startServer()
 
-#TODO leaving
+#TODO personal message
 #TODO kick
+#TODO tag and chat
