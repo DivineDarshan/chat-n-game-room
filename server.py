@@ -1,6 +1,7 @@
 import socket
 import threading
 import subprocess
+import re
 
 class Client:
 	def __init__(self,name="noname", host="localhost", port=5020, connection = None, address="undefined", isHost=False) -> None:
@@ -28,7 +29,18 @@ class Server:
 				msg = str(client.connection.recv(4096).decode())
 				if msg:
 					m = f"{client.name}({client.address}): {msg}"
-					if msg in "quit":
+					if '@' in msg:
+						pattern = r'@(\d{5})'
+						user_ids = re.findall(pattern, msg)
+						self.Log(m)
+						for c in self.clients:
+							if str(c.address) in user_ids:
+								try:
+									c.connection.send(m.encode())
+								except: 
+									self.clients.remove(c)
+									c.connection.close()
+					elif msg in "quit":
 						if client.name == "HOST":
 							self.Log(m)
 							self.broadcast(m)
@@ -87,19 +99,17 @@ class Server:
 		threading.Thread(target=self.joinServer,args=()).start()
 		self.accept()
 
-	def sentPersonalMsg(self, msg, id):
-		for c in self.clients: 
-			if c.port == id:
-				try:
-					c.connection.send(msg.encode());
-				except:
-					self.clients.remove(c)
-					c.connection.close()
+	# def sentPersonalMsg(self, msg, id):
+	# 	for c in self.clients: 
+	# 		if c.port == id:
+	# 			try:
+	# 				c.connection.send(msg.encode());
+	# 			except:
+	# 				self.clients.remove(c)
+	# 				c.connection.close()
 
 
 server = Server("localhost", 5020)
 server.startServer()
 
-#TODO personal message
 #TODO kick
-#TODO tag and chat

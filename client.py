@@ -14,12 +14,11 @@ def reciveData():
 		try:
 			rec = str(connection.recv(4096).decode())
 			if len(rec) > 0:
-				print(rec)
-				if ("HOST" in rec and "LEFT" in rec) or "quit" in rec:
-					print("i am in exit war")
+				if ("HOST" in rec and "LEFT" in rec) or "quit" in rec or ("HOST" in rec and "KICK" in rec):
 					connection.close()
 					running = False
 					break
+				print(rec)
 		except:
 			continue
 
