@@ -35,6 +35,6 @@ We welcome contributions from the community. If you would like to contribute, pl
 This project is licensed under the MIT License.
 
 ## Contact 🤳
-If you have any questions or suggestions, please feel free to contact me at vedantsinggh@gmail.com.
+If you have any questions or suggestions, please feel free to contact us at vedantsinggh@gmail.com or solankidarshan0321@gmail.com
 Thank you for your interest in this project!
 
