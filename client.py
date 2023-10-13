@@ -1,35 +1,38 @@
 import socket
 from _thread import *
+import common
 
-port = int(input("Enter room number"))
-name = str(input("Enter your username:"))
+port = int(input("Enter room number: "))
+name = str(input("Enter your username: "))
 
 connection = socket.socket()
 connection.connect(('localhost',port))
 running = True
 connection.send(name.encode())
+
 def reciveData():
 	global running
 	while running:
 		try:
 			rec = str(connection.recv(4096).decode())
 			if len(rec) > 0:
-				if ("HOST" in rec and "LEFT" in rec) or "quit" in rec or ("HOST" in rec and "KICK" in rec):
-					connection.close()
-					running = False
-					break
+				if len(rec) <= 3:
+					if (int(rec) == common.__CLOSE__) or (int(rec) == common.__EXIT__)  or (int(rec) == common.__KICK__):
+						running = False
+						connection.close()
+						break
 				print(rec)
-		except:
+		except error as e:
 			continue
 
 while running:
 	start_new_thread(reciveData, ())
 	try:
 		msg = str(input())
-		if msg == "quit" and running != False:
-			connection.send("quit".encode())
+		if msg == "QUIT":
+			connection.send(str(common.__EXIT__).encode())
 			connection.close()
 			break
+		connection.send(msg.encode())
 	except:
 		break	
-	connection.send(msg.encode())

@@ -2,11 +2,12 @@ import socket
 import threading
 import subprocess
 import re
+import common
 
 class Client:
-	def __init__(self,name="noname", host="localhost", port=5020, connection = None, address="undefined", isHost=False) -> None:
+	def __init__(self,name="Default user", host="localhost", port=5020, connection = None, address=None, isHost=False) -> None:
 		self.host = host
-		self.post = port
+		self.port = port
 		self.name = name
 		self.connection = connection
 		self.address = address
@@ -29,10 +30,10 @@ class Server:
 				msg = str(client.connection.recv(4096).decode())
 				if msg:
 					m = f"{client.name}({client.address}): {msg}"
+					self.Log(m)
 					if '@' in msg:
 						pattern = r'@(\d{5})'
 						user_ids = re.findall(pattern, msg)
-						self.Log(m)
 						for c in self.clients:
 							if str(c.address) in user_ids:
 								try:
@@ -40,30 +41,27 @@ class Server:
 								except: 
 									self.clients.remove(c)
 									c.connection.close()
-					elif msg in "quit":
+					elif msg == str(common.__EXIT__):
 						if client.name == "HOST":
-							self.Log(m)
-							self.broadcast(m)
+							self.broadcast(str(common.__CLOSE__))
 							self.closeServer()
 							break
 						m = f"{client.name}({client.address}): LEFT"
-						self.Log(m)
 						self.broadcast(m)
 						self.clients.remove(client)
 						client.connection.close()
 						break
 					else:
-						self.Log(m)
 						self.broadcast(m)
 			except:
 				continue
-
 	def closeServer(self):
 		self.isServerRunning = False
-		self.broadcast("quit")
+		self.broadcast(str(common.__EXIT__))
 		for c in self.clients:
 			c.connection.close()
 		self.server.close()
+		return
 
 	def broadcast(self, msg):
 		for c in self.clients:
@@ -83,14 +81,14 @@ class Server:
 					isHost = True
 				client = Client(name=name, host="localhost", port=5020, connection=_client, address=str(_address)[14:19], isHost=isHost)
 				self.clients.append(client)
-				self.Log(client.address + " JOINED")
-				self.broadcast(client.address + " JOINED")
+				self.Log(f"{client.name} JOINED AT {client.address}")
+				self.broadcast(f"{client.name} JOINED AT {client.address}")
 				threading.Thread(target=self.listenToClient,args=(client,)).start()
 			except:
 				continue
 
 	def joinServer(self):
-		subprocess.call("start /wait python client.py", shell=True)
+		subprocess.call("start /wait python client.py", shell=True)# add naming agrument feature
 
 	def startServer(self):
 		self.server.bind((self.host,self.port))
@@ -99,17 +97,5 @@ class Server:
 		threading.Thread(target=self.joinServer,args=()).start()
 		self.accept()
 
-	# def sentPersonalMsg(self, msg, id):
-	# 	for c in self.clients: 
-	# 		if c.port == id:
-	# 			try:
-	# 				c.connection.send(msg.encode());
-	# 			except:
-	# 				self.clients.remove(c)
-	# 				c.connection.close()
-
-
 server = Server("localhost", 5020)
 server.startServer()
-
-#TODO kick
