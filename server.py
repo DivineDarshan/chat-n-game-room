@@ -3,6 +3,7 @@ import threading
 import subprocess
 import re
 import common
+import tkinter as tk
 
 class Client:
 	def __init__(self,name="Default user", host="localhost", port=5020, connection = None, address=None, isHost=False) -> None:
@@ -12,7 +13,7 @@ class Client:
 		self.connection = connection
 		self.address = address
 		self.isHost = isHost
-
+		self.screen = None
 class Server:
 	def __init__(self, host="localhost", port=5020):
 		self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -20,8 +21,12 @@ class Server:
 		self.port = port
 		self.isServerRunning = False
 		self.clients = []
+		self.listOfMessage = []
 
 	def Log(self,msg):
+		self.listOfMessage.append(str(msg))
+		label = tk.Label(self.screen, text=str(msg))
+		label.pack()
 		print(str(msg))
 
 	def	listenToClient(self, client):
@@ -88,14 +93,22 @@ class Server:
 				continue
 
 	def joinServer(self):
-		subprocess.call("start /wait python client.py", shell=True)# add naming agrument feature
+		subprocess.call("start /wait pythonw client.py h", shell=True)# add naming agrument feature
 
 	def startServer(self):
+
+
 		self.server.bind((self.host,self.port))
 		self.server.listen()
 		self.isServerRunning = True
-		threading.Thread(target=self.joinServer,args=()).start()
-		self.accept()
+		
+		self.screen = tk.Tk()
+		self.screen.title(str(self.port)) 
+		self.screen.geometry("1200x700")
 
-server = Server("localhost", 5020)
-server.startServer()
+		threading.Thread(target=self.joinServer,args=()).start()
+		threading.Thread(target=self.accept,args=()).start()
+		self.screen.mainloop()
+
+# server = Server("localhost", 5020)
+# server.startServer() 

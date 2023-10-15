@@ -1,14 +1,56 @@
 import socket
 from _thread import *
 import common
+import tkinter as tk
+import sys
 
-port = int(input("Enter room number: "))
-name = str(input("Enter your username: "))
+port = 5000
+name = "HOST"
+
+if len(sys.argv) == 1:
+	def submit():
+		global name, port
+		name = str(name_entry.get())
+		port = int(port_entry.get())
+		root.destroy()
+		
+
+	root = tk.Tk()
+	root.title("create room")
+	root.geometry("1200x700")
+
+	name_label = tk.Label(root, text="Name")
+	name_label.pack()
+	name_entry = tk.Entry(root)
+	name_entry.pack()
+
+	port_label = tk.Label(root, text="Server id")
+	port_label.pack()
+	port_entry = tk.Entry(root)
+	port_entry.pack()
+
+	submit_button = tk.Button(root, text="Create", command=submit)
+	submit_button.pack()
+	root.mainloop()
+
+screen = tk.Tk()
+screen.title(f"Chat room")
+screen.geometry("1200x700")
+screen.resizable = False
+
+msgFrame = tk.Frame(screen)
+msgFrame.pack()
+
+inputMsg = tk.Entry(screen)
+inputMsg.bind("<Return>", (lambda event: inputText(inputMsg.get())))
+inputMsg.place(x=100 ,y=650 ,height=50, width=1000)
+# msgFrame.pack()
 
 connection = socket.socket()
 connection.connect(('localhost',port))
 running = True
 connection.send(name.encode())
+listOfMessages = []
 
 def reciveData():
 	global running
@@ -21,18 +63,22 @@ def reciveData():
 						running = False
 						connection.close()
 						break
-				print(rec)
+				listOfMessages.append(str(rec))
+				label = tk.Label(msgFrame, text=str(rec))
+				label.pack()
 		except error as e:
 			continue
 
-while running:
-	start_new_thread(reciveData, ())
+start_new_thread(reciveData, ())
+def inputText(msg):
+	inputMsg.delete(0, tk.END)
+	msg = str(msg)
 	try:
-		msg = str(input())
 		if msg == "QUIT":
 			connection.send(str(common.__EXIT__).encode())
 			connection.close()
-			break
 		connection.send(msg.encode())
 	except:
-		break	
+		pass
+
+screen.mainloop()
