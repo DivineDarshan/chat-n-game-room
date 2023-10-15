@@ -1,101 +1,90 @@
 import socket
-import threading
+from _thread import start_new_thread
+from tkinter import messagebox
+import tkinter as Tk
+from functools import partial
 
-class TicTacToe:
-    def __init__(self):
-        self.board = [[" "," "," "] , [" "," "," "] , [" "," "," "] ]
-        self.turn = "X" 
-        self.you = "X"
-        self.opponent = "Y"
-        self.winner = None
-        self.game_over = False
+server=socket.socket((socket.AF_INET),(socket.SOCK_STREAM))
+host = "127.0.0.1" #localhost
+port = 5999
+server.bind((host,port))
+server.listen(50)
+c , ad=server.accept()
 
-        self.counter = 0  
+window = Tk.Tk()
+window.title("Tic Tac Toe")
+window.geometry("300x300")
 
-    def host_game(self,host,port):
-        server = socket.socket()
-        server.bind((host,port))
-        server.listen(1)
+player_symbol = 'O'
+Opponent_symbol = 'X'
 
-        client , addr = server.accept()
+my_turn =0
+def clicked( i, j ):
+	global my_turn
+	global player_symbol
+	global c  
+	if (button[i][j]["text"]== ' ' and my_turn==1) :
+		button[i][j]["text"]= player_symbol
+		button_number = i*3+j
+		c.send(str(button_number).encode('utf-8'))
+		my_turn=0
+		check(player_symbol)
+interation = 1
+def check(turn):
+	global interation
+	global player_symbol
+	win = 0 
+	for i in range(3):
+		if (button[i][0]["text"]==button[i][1]["text"] and button[i][0]["text"]==button[i][2]["text"] and button[i][0]["text"] != " " ) or (button[0][i]["text"]==button[1][i]["text"] and button[0][i]["text"]==button[2][i]["text"] and str(button[0][i]["text"]) != " " ):
+			if(turn==player_symbol):
+				messagebox.showinfo("showinfo" , "Congratulations! You won ")
+			else:
+				messagebox.showerror("showerror" , "Better Luck Next Time")
+			win==1
+			reset()
 
-        self.you = "X"
-        self.opponent = "O"
-        threading.Thread(target=self.handle_connection , args=(client,)).start()
-        # server.close()
+	if win ==0:
+		if((button[0][0]["text"]==button[1][1]["text"] and button[0][0]["text"]==button[2][2]["text"] and button[0][0]["text"] != " " )or (button[0][2]["text"]==button[1][1]["text"] and button[0][2]["text"]==button[2][0]["text"] and str(button[0][2]["text"]) != " " )):
+			if(turn==player_symbol):
+				messagebox.showinfo("showinfo" , "Congratulations! You won ")
+			else:
+				messagebox.showerror("showerror" , "Better Luck Next Time")
+			win==1
+			reset()
+	
+	if win==0 and interation==9:
+		messagebox.showinfo("showinfo" , "No Player Won")
+		reset()
+	
+	interation = interation + 1  
 
-    def connect_to_game(self,host,port):
-        client = socket.socket()
-        client.connect((host,port))
+def reset():
+	global interation
+	global my_turn
+	global button
+	for i in range(3):
+		for j in range(3):
+			button[i][j].config(text=" ")
+	my_turn = 0
+	interation = 0
 
-        self.you = "O"
-        self.opponent = "X"
-        threading.Thread(target=self.handle_connection , args=(client,)).start()
+button = [[0 for x in range (3)] for y in range(3)]
+for i in range(3):
+	for j in range(3):
+		button[i][j] = Tk.Button(window,text = " " , bg = "Red" , fg = "Black" , width = 8 , height = 4)
+		button[i][j].config(command = partial(clicked , i , j ))
+		button[i][j].grid(row=i+10 , column=j+3)
+def recvThread (c):
+	global button
+	global my_turn
+	while True:
+		button_number = int(c.recv(1024).decode('utf-8'))
+		row = int(button_number/3)
+		column = int(button_number%3)
+		button[row][column]["text"] = Opponent_symbol
+		my_turn=1
+		check(Opponent_symbol)
 
-    def handle_connection(self,client):
-        while not self.game_over:
-            if self.turn == self.you:
-                move = input("Enter a move (row , column): ")
-                if self.check_valid_move([move[:1],move[2:]]):
-                    self.apply_move([move[:1],move[2:]], self.you)
-                    self.turn = self.opponent
-                    client.send(move.encode('utf-8'))
-                else:
-                    print("Invalid move!")
-            else:
-                data = client.recv(1824)
-                if not data:
-                    break
-                else:
-                    move = data.decode('utf-8')
-                    k = [move[:1],move[2:]]
-                    self.apply_move(k,self.opponent)
-                    self.turn = self.you
-        client.close()
+start_new_thread(recvThread , (c,))
 
-    def apply_move(self , move , player):
-        if self.game_over:
-            return
-        self.counter = self.counter + 1
-        self.board[int(move[0])][int(move[1])] = player
-        self.print_board()
-        if self.check_if_won():
-            if self.winner == self.you:
-                print("You win!")
-                exit()
-            elif self.winner == self.oppoennt:
-                print("YOu lose!")
-                exit()
-        else:
-            if self.counter ==9:
-                print("It is a tie!!")
-                exit()
-    def check_valid_move(self,move):
-        if int(move[0]) < 3 and int(move[1]) < 3:
-            return self.board[int(move[0])][int(move[1])] == " "
-        return False
-    def check_if_won(self):
-        for row in range(3):
-            if self.board[row][0] == self.board[row][1] == self.board[row][2] != " ":
-                self.winner = self.board[row][0]
-                self.game_over = True
-                return True 
-        for col in range(3):
-            if self.board[0][col] == self.board[1][col] == self.board[2][col] != " ":
-                self.winner = self.board[0][col]
-                self.game_over = True
-                return True
-        if self.board[0][0] == self.board[1][1] == self.board[2][2] != " ":
-            self.winner = self.board[0][0]
-            self.game_over = True
-            return True
-        if self.board[0][2] == self.board[1][1] == self.board[2][0] != " ":
-            self.winner = self.board[0][2]
-            self.game_over = True
-            return True
-        return False
-    def print_board(self):
-        for row in range(3):
-            print(" ! ".join(self.board[row]))
-            if row != 2:
-                print("-----------")
+window.mainloop()
