@@ -93,7 +93,7 @@ class Server:
 				continue
 
 	def joinServer(self):
-		subprocess.call("start /wait pythonw client.py h", shell=True)# add naming agrument feature
+		subprocess.call(f"start /wait pythonw client.py {self.port}", shell=True)# add naming agrument feature
 
 	def startServer(self):
 
@@ -104,7 +104,7 @@ class Server:
 		
 		self.screen = tk.Tk()
 		self.screen.title(str(self.port)) 
-		self.screen.geometry("1200x700")
+		self.screen.geometry("200x700")
 
 		threading.Thread(target=self.joinServer,args=()).start()
 		threading.Thread(target=self.accept,args=()).start()

@@ -32,6 +32,9 @@ if len(sys.argv) == 1:
 	submit_button = tk.Button(root, text="Create", command=submit)
 	submit_button.pack()
 	root.mainloop()
+else:
+	port = int(sys.argv[1])
+	host = "HOST"
 
 screen = tk.Tk()
 screen.title(f"Chat room")
@@ -44,7 +47,6 @@ msgFrame.pack()
 inputMsg = tk.Entry(screen)
 inputMsg.bind("<Return>", (lambda event: inputText(inputMsg.get())))
 inputMsg.place(x=100 ,y=650 ,height=50, width=1000)
-# msgFrame.pack()
 
 connection = socket.socket()
 connection.connect(('localhost',port))
