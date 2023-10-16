@@ -3,10 +3,11 @@ from _thread import start_new_thread
 from tkinter import messagebox
 import tkinter as Tk
 from functools import partial
+import sys
 
 server=socket.socket((socket.AF_INET),(socket.SOCK_STREAM))
-host = "127.0.0.1" #localhost
-port = 5999
+host = "localhost" 
+port = int(sys.argv[1])
 server.bind((host,port))
 server.listen(50)
 c , ad=server.accept()
@@ -68,7 +69,7 @@ def reset():
 	my_turn = 0
 	interation = 0
 
-button = [[0 for x in range (3)] for y in range(3)]
+button = [[0 for _ in range (3)] for _ in range(3)]
 for i in range(3):
 	for j in range(3):
 		button[i][j] = Tk.Button(window,text = " " , bg = "Red" , fg = "Black" , width = 8 , height = 4)

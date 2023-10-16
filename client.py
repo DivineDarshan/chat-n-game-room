@@ -1,8 +1,11 @@
+import re
 import socket
 from _thread import *
 import common
 import tkinter as tk
 import sys
+import subprocess
+import threading
 
 port = 5000
 name = "HOST"
@@ -72,6 +75,13 @@ def reciveData():
 			continue
 
 start_new_thread(reciveData, ())
+
+def runGame(flag, user_id):
+	if flag==0:
+		subprocess.call(args=f"start /wait pythonw game.py {user_id}", shell=True)
+	else:		
+		subprocess.call(args=f"start /wait pythonw gameclient.py {user_id}", shell=True)
+	
 def inputText(msg):
 	inputMsg.delete(0, tk.END)
 	msg = str(msg)
@@ -80,6 +90,15 @@ def inputText(msg):
 			connection.send(str(common.__EXIT__).encode())
 			connection.close()
 			screen.destroy()
+		if msg.startswith("/game") and "@" in msg:
+			user_id = str(connection.getsockname()[1])[:4]
+			print(user_id)
+			threading.Thread(target=runGame,args= (0,user_id)).start()
+		if msg.startswith("/accept") and "@" in msg:
+			pattern = r'@(\d{5})'
+			user_id = str(re.findall(pattern, msg)[0])[:4]
+			print(user_id)
+			threading.Thread(target=runGame,args= (1,user_id)).start()
 		connection.send(msg.encode())
 	except:
 		pass

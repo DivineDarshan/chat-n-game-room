@@ -3,10 +3,11 @@ from _thread import start_new_thread
 from tkinter import messagebox
 import tkinter as Tk
 from functools import partial
+import sys
 
 server=socket.socket((socket.AF_INET),(socket.SOCK_STREAM))
-host = "127.0.0.1" #localhost
-port = 5999
+host = "127.0.0.1"
+port = int(sys.argv[1])
 server.connect((host,port))
 
 window = Tk.Tk()

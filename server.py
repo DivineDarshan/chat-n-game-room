@@ -94,7 +94,7 @@ class Server:
 				continue
 
 	def joinServer(self):
-		subprocess.call(f"start /wait pythonw client.py {self.port}", shell=True)# add naming agrument feature
+		subprocess.call(f"start /wait pythonw client.py {self.port}", shell=True)
 
 	def startServer(self):
 
