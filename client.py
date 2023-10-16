@@ -77,10 +77,12 @@ def reciveData():
 start_new_thread(reciveData, ())
 
 def runGame(flag, user_id):
+	global name
+	print(name)
 	if flag==0:
-		subprocess.call(args=f"start /wait pythonw game.py {user_id}", shell=True)
+		subprocess.call(args=f"start /wait pythonw game.py {user_id} {name}", shell=True)
 	else:		
-		subprocess.call(args=f"start /wait pythonw gameclient.py {user_id}", shell=True)
+		subprocess.call(args=f"start /wait pythonw gameclient.py {user_id} {name}", shell=True)
 	
 def inputText(msg):
 	inputMsg.delete(0, tk.END)

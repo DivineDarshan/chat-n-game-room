@@ -13,8 +13,8 @@ server.listen(50)
 c , ad=server.accept()
 
 window = Tk.Tk()
-window.title("Tic Tac Toe")
-window.geometry("300x300")
+window.title(str(sys.argv[2]))
+window.geometry("200x200")
 
 player_symbol = 'O'
 Opponent_symbol = 'X'

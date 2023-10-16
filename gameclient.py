@@ -11,8 +11,8 @@ port = int(sys.argv[1])
 server.connect((host,port))
 
 window = Tk.Tk()
-window.title("Tic Tac Toe")
-window.geometry("300x300")
+window.title(str(sys.argv[2]))
+window.geometry("200x200")
 
 player_symbol = 'X'
 Opponent_symbol = 'O'
