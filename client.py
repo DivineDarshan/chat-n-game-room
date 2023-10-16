@@ -13,7 +13,6 @@ if len(sys.argv) == 1:
 		name = str(name_entry.get())
 		port = int(port_entry.get())
 		root.destroy()
-		
 
 	root = tk.Tk()
 	root.title("create room")
@@ -29,7 +28,7 @@ if len(sys.argv) == 1:
 	port_entry = tk.Entry(root)
 	port_entry.pack()
 
-	submit_button = tk.Button(root, text="Create", command=submit)
+	submit_button = tk.Button(root, text="Join", command=submit)
 	submit_button.pack()
 	root.mainloop()
 else:
@@ -64,6 +63,7 @@ def reciveData():
 					if (int(rec) == common.__CLOSE__) or (int(rec) == common.__EXIT__)  or (int(rec) == common.__KICK__):
 						running = False
 						connection.close()
+						screen.destroy()	
 						break
 				listOfMessages.append(str(rec))
 				label = tk.Label(msgFrame, text=str(rec))
@@ -79,6 +79,7 @@ def inputText(msg):
 		if msg == "QUIT":
 			connection.send(str(common.__EXIT__).encode())
 			connection.close()
+			screen.destroy()
 		connection.send(msg.encode())
 	except:
 		pass

@@ -66,6 +66,7 @@ class Server:
 		for c in self.clients:
 			c.connection.close()
 		self.server.close()
+		self.screen.destroy()
 		return
 
 	def broadcast(self, msg):
@@ -109,6 +110,3 @@ class Server:
 		threading.Thread(target=self.joinServer,args=()).start()
 		threading.Thread(target=self.accept,args=()).start()
 		self.screen.mainloop()
-
-# server = Server("localhost", 5020)
-# server.startServer() 
