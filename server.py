@@ -1,16 +1,19 @@
 import socket
 import threading
 import subprocess
+import re
+import common
+import tkinter as tk
 
 class Client:
-	def __init__(self,name="noname", host="localhost", port=5020, connection = None, address="undefined", isHost=False) -> None:
+	def __init__(self,name="Default user", host="localhost", port=5020, connection = None, address=None, isHost=False) -> None:
 		self.host = host
-		self.post = port
+		self.port = port
 		self.name = name
 		self.connection = connection
 		self.address = address
 		self.isHost = isHost
-
+		self.screen = None
 class Server:
 	def __init__(self, host="localhost", port=5020):
 		self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
@@ -18,8 +21,12 @@ class Server:
 		self.port = port
 		self.isServerRunning = False
 		self.clients = []
+		self.listOfMessage = []
 
 	def Log(self,msg):
+		self.listOfMessage.append(str(msg))
+		label = tk.Label(self.screen, text=str(msg))
+		label.pack()
 		print(str(msg))
 
 	def	listenToClient(self, client):
@@ -28,31 +35,39 @@ class Server:
 				msg = str(client.connection.recv(4096).decode())
 				if msg:
 					m = f"{client.name}({client.address}): {msg}"
-					if msg in "quit":
+					self.Log(m)
+					if '@' in msg:
+						pattern = r'@(\d{5})'
+						user_ids = re.findall(pattern, msg)
+						for c in self.clients:
+							if str(c.address) in user_ids:
+								try:
+									c.connection.send(m.encode())
+								except: 
+									self.clients.remove(c)
+									c.connection.close()
+					elif msg == str(common.__EXIT__):
 						if client.name == "HOST":
-							m = f"{client.name}({client.address}): LEFT"
-							self.Log(m)
-							self.broadcast(m)
+							self.broadcast(str(common.__CLOSE__))
 							self.closeServer()
 							break
 						m = f"{client.name}({client.address}): LEFT"
-						self.Log(m)
 						self.broadcast(m)
 						self.clients.remove(client)
 						client.connection.close()
 						break
 					else:
-						self.Log(m)
 						self.broadcast(m)
 			except:
-				continue 
-
+				continue
 	def closeServer(self):
 		self.isServerRunning = False
-		self.broadcast("quit")
+		self.broadcast(str(common.__EXIT__))
 		for c in self.clients:
 			c.connection.close()
 		self.server.close()
+		self.screen.destroy()
+		return
 
 	def broadcast(self, msg):
 		for c in self.clients:
@@ -72,24 +87,26 @@ class Server:
 					isHost = True
 				client = Client(name=name, host="localhost", port=5020, connection=_client, address=str(_address)[14:19], isHost=isHost)
 				self.clients.append(client)
-				self.Log(client.address + " JOINED")
-				self.broadcast(client.address + " JOINED")
+				self.Log(f"{client.name} JOINED AT {client.address}")
+				self.broadcast(f"{client.name} JOINED AT {client.address}")
 				threading.Thread(target=self.listenToClient,args=(client,)).start()
 			except:
 				continue
 
 	def joinServer(self):
-		subprocess.call("start /wait python client.py", shell=True)
+		subprocess.call(f"start /wait pythonw client.py {self.port}", shell=True)
 
 	def startServer(self):
+
+
 		self.server.bind((self.host,self.port))
 		self.server.listen()
 		self.isServerRunning = True
+		
+		self.screen = tk.Tk()
+		self.screen.title(str(self.port)) 
+		self.screen.geometry("200x700")
+
 		threading.Thread(target=self.joinServer,args=()).start()
-		self.accept()
-
-server = Server("localhost", 5020)
-server.startServer()
-
-#TODO leaving
-#TODO kick
+		threading.Thread(target=self.accept,args=()).start()
+		self.screen.mainloop()

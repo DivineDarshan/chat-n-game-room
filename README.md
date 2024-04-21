@@ -1,40 +1,51 @@
-# ChatnGame Room App 👥
+# Chat and Game Room 🎮💬
 
-## Description 🗣️
-
-This is a personal project to create a chat and game room application using Python and the socket library. The application is designed to provide a platform for users to communicate in real time.
+Welcome to the first release of our Chat and Game Room! This application allows users to chat and play games in a shared virtual space.
 
 ## Status ⏲️
 
 Please note that this project is currently **under development**. While the basic functionality is in place, there may be bugs and incomplete features. We appreciate your understanding and patience.
 
-## Installation ⏬
+## Dependencies 📚
 
-To run this project, you will need Python installed on your machine. You can download Python from the official website: https://www.python.org/downloads/
+This application heavily depends on the `socket` library.
 
-After installing Python, you can clone this repository to your local machine and navigate to the project directory.
+## Installation 💻
 
-## Usage 🧑‍🏫
+1. Clone the repository:
+    ```
+    git clone https://github.com/vedantsinggh/chat-n-game-room.git
+    ```
+2. Navigate to the cloned repository:
+    ```
+    cd chat-n-game-room
+    ```
+3. Run the app:
+    ```
+    python redroom.py
+    ```
 
-To start the server, run the following command in your terminal:
+## Usage 🕹️
 
-```bash
-python server.py
-```
+You can run the application in two ways:
 
-To start the client, open a new terminal window and run:
+1. Using Python:
+    ```
+    python redroom.py
+    ```
+2. Directly running the batch file:
+    ```
+    App.bat
+    ```
 
-```bash
-python client.py
-```
-
-## Contributing 💁
+## Contributing 🤝
 We welcome contributions from the community. If you would like to contribute, please fork this repository, make your changes, and submit a pull request.
 
-## License 📃
+## License 📄
 This project is licensed under the MIT License.
 
-## Contact 🤳
-If you have any questions or suggestions, please feel free to contact me at vedantsinggh@gmail.com.
+## Contact 📞
+If you have any questions or suggestions, please feel free to contact us at vedantsinggh@gmail.com or solankidarshan0321@gmail.com
 Thank you for your interest in this project!
 
+Enjoy chatting and gaming! 🎮
